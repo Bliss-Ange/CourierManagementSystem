@@ -1,0 +1,26 @@
+Courier Service Company
+
+
+User Roles
+- SuperAdmin
+- Staff
+- Client
+
+Admin Portal To Have in tsx file format
+- Vehicle
+    - Create new Vehicle
+    - Edit Vehicle
+    - View Vehicle in table and able to do sorting
+    - Delete Vehicle
+- Maintenance
+    - Create new Maintenance
+    - Edit Maintenance
+    - View Maintenance in table and able to do sorting
+    - Delete Maintenance
+
+Database Models
+- Vehicles
+    - VID (PK), VihecleName, BrandName, Type, CarplateNumber, LastServiceDate, NextServiceDate, PersonUsing, Capacity, InsuranceExpireDate
+
+- Maintenance
+    - MID (PK), Vehicle (FK), MaintenanceName, Description, Provider, Milleage, Cost
