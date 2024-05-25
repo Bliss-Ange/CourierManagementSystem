@@ -1,24 +1,22 @@
-// App.tsx
 import React from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import './App.css';
 
+import Login from './auth/Login'
+import { ToastContainer } from 'react-toastify';
 
-import IndexPage from './pages/index';
+function App() {
+  return (
+    <>
+    <ToastContainer />
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />}/>
+      </Routes>
+    </Router>
+    </>
+   
+  );
+}
 
-export default function App() {
-    const theme = createTheme();
-    const isLoggedIn = false;
-  
-    return (
-    <ThemeProvider theme={theme}>
-        <Router>
-            <Routes>
-            <Route path="/" element={<IndexPage/>}/>
-            </Routes>
-          
-        </Router>
-    </ThemeProvider>
-      
-    );
-  }
+export default App;
