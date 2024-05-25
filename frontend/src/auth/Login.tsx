@@ -15,9 +15,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const [passwordresetOpen, setPasswordResetOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [LoginLoading, setLoginLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,72 +25,50 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginLoading(true);
     const data = {
-      username,
-      password,
+        username,
+        password,
     };
 
     try {
-      const getAuthToken = async (username: string, password: string) => {
-        const AuthToken = await axios.post(`${BASE_API}/users/token/`, {
-          username: username,
-          password: password,
-        });
-        const token = AuthToken.data.access;
-        const refreshToken = AuthToken.data.refresh;
-        localStorage.setItem('access_token', AuthToken.data.access);
-        localStorage.setItem('refresh_token', AuthToken.data.refresh);
-        return [token, refreshToken] ;
-      };
-
-      const [accessToken, refreshToken] = await getAuthToken(username, password);
-
-      if (!username || !password) {
-        toast.error('Please fill in all fields.');
-        return;
-      }
-      
-      const response = await axios.post(`${BASE_API}/users/login/`, data, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      }
-      );
-      if (response.status === 200) {
-        toast.success('Login successful.');
-
-        if (rememberMe) {
-          const expirationDate = new Date();
-          expirationDate.setDate(expirationDate.getDate() + 7);
-          localStorage.setItem('rememberedExpirationDate', expirationDate.toISOString());
-          localStorage.setItem('rememberedUsername', username);
+        if (!username || !password) {
+            toast.error('Please fill in all fields.');
+            return;
         }
-        setLoginLoading(false);
-        localStorage.clear();
-        navigate('/systemsetting/subscriptions')
-      } else {
-        toast.error('Login failed. Please try again.');
-      }
+
+        const response = await axios.post(`${BASE_API}/users/login/`, data);
+
+        if (response.status === 200) {
+            const accessToken = response.data.access;
+            const refreshToken = response.data.refresh;
+
+            localStorage.setItem('access_token', accessToken);
+            localStorage.setItem('refresh_token', refreshToken);
+
+            toast.success('Login successful.');
+
+            if (rememberMe) {
+                const expirationDate = new Date();
+                expirationDate.setDate(expirationDate.getDate() + 7);
+                localStorage.setItem('rememberedExpirationDate', expirationDate.toISOString());
+                localStorage.setItem('rememberedUsername', username);
+            }
+
+            navigate('');
+        } else {
+            toast.error('Login failed. Please try again.');
+        }
     } catch (error: any) {
-      if (error.response?.status === 401) {
-        toast.error('Login failed. Please Check Username and Password.');
-      } else if (error.response?.status === 403) {
-        toast.error('Login failed. User is not an admin. Please try again.');
-      } else if (error.response?.status === 410) {
-        toast.error('Login failed. User is not active. Please Contact Administrator.');
-      } else {
-        toast.error('Login failed. Please try again.');
-      }
+        if (error.response?.status === 401) {
+            toast.error('Login failed. Please check your username and password.');
+        } else if (error.response?.status === 403) {
+            toast.error('Login failed. User is not an admin. Please try again.');
+        } else if (error.response?.status === 410) {
+            toast.error('Login failed. User is not active. Please contact the administrator.');
+        } else {
+            toast.error('Login failed. Please try again.');
+        }
     }
-  };
-
-  const handleOpenPasswordReset = () => {
-    setPasswordResetOpen(true);
-  };
-
-  const handleClosePasswordReset = () => {
-    setPasswordResetOpen(false);
   };
 
   const getStoredCredentials = () => {
@@ -108,18 +84,11 @@ const Login = () => {
 
   useEffect(() => {
     getStoredCredentials();
-  }
-  , []);
+  }, []);
 
   const handleRememberMeChange = () => {
     setRememberMe(!rememberMe);
   };
-
-  if (rememberMe) {
-    localStorage.setItem('rememberedUsername', username);
-  } else {
-    localStorage.removeItem('rememberedUsername');
-  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -172,6 +141,7 @@ const Login = () => {
               name="username"
               autoFocus
               onChange={(e) => setUsername(e.target.value)}
+              value={username}
             />
             <TextField
               margin="normal"
@@ -195,6 +165,7 @@ const Login = () => {
                   </InputAdornment>
                 ),
               }}
+              value={password}
             />
             <Grid container>
               <Grid item xs={12} sm={8}>
@@ -204,27 +175,20 @@ const Login = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={4} sx={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center'}}>
-                <Link href="#" variant="body2" onClick={handleOpenPasswordReset}>
+                <Link href="#" variant="body2">
                   Forgot password?
                 </Link>
               </Grid>
             </Grid>
             <Button
               type="submit"
-              onClick={handleSubmit}
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={LoginLoading}
             >
-              {LoginLoading ? ( <CircularProgress size={24} color="primary" /> )
-              : (
-                'Sign In'
-              )}
+                Sign In
             </Button>
-            
           </Box>
-          
         </Box>
       </Grid>
     </Grid>
